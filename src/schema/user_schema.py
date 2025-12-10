@@ -17,10 +17,10 @@ class UserCreateSchema(BaseModel):
     class Config:
         json_schema_extra = { # exemplo p docs
             "example": {
-                "nome": "João Silva",
-                "email": "joao.silva@universidade.edu.br",
+                "nome": "Davi Nasiasene",
+                "email": "davi.nasiasene@gmail.com",
                 "tipo": "cliente",
-                "telefone": "(11) 98765-4321"
+                "telefone": "(83) 99999-9999"
             }
         }
 
@@ -36,10 +36,10 @@ class UserResponseSchema(BaseModel):
         json_schema_extra = { # exemplo p docs
             "example": {
                 "id": 1,
-                "nome": "João Silva",
-                "email": "joao.silva@universidade.edu.br",
+                "nome": "Davi Nasiasene",
+                "email": "davi.nasiasene@gmail.com",
                 "tipo": "cliente",
-                "telefone": "(11) 98765-4321"
+                "telefone": "(83) 99999-9999"
             }
         }
 
