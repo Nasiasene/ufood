@@ -1,29 +1,24 @@
-from enum import Enum
 from typing import Optional
-
-
-class TipoUsuario(Enum):
-    VENDEDOR = "vendedor"
-    CLIENTE = "cliente"
-
+from repositories.user_type import UserType
 
 class User:
-    def __init__(self, id: int, nome: str, email: str, tipo: TipoUsuario, telefone: Optional[str] = None):
-        self.id = id
-        self.nome = nome
+    id: int
+    
+    def __init__(self, name: str, email: str, user_type: UserType, phone: Optional[str] = None):
+        self.name = name
         self.email = email
-        self.tipo = tipo
-        self.telefone = telefone
+        self.user_type = user_type
+        self.phone = phone
 
-    def to_dict(self): # p/ facilitar o retorno, convertendo para um dicionário
+    def to_dict(self):
         return {
             "id": self.id,
-            "nome": self.nome,
+            "name": self.name,
             "email": self.email,
-            "tipo": self.tipo.value,
-            "telefone": self.telefone
+            "user_type": self.user_type.value,
+            "phone": self.phone
         }
 
-    def __repr__(self): # log em uma linha como string
-        return f"User(id={self.id}, nome='{self.nome}', email='{self.email}', tipo={self.tipo.value})"
+    def __repr__(self):
+        return f"User(id={self.id}, name='{self.name}', email='{self.email}', user_type={self.user_type.value})"
 

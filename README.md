@@ -1,5 +1,14 @@
 # ufood
 
+## Membros
+
+- ANA CECILIA BEZERRA MOTA
+- DAVI NASIASENE AMORIM
+- GUILHERME DANTAS PINTO
+- FELLYPE DIAS FONTES
+- IAN ROCHA BITTENCOURT
+- NICHOLAS GABRIEL SILVINO RODRIGUES
+
 ## Descrição
 
 Marketplace interno para vendas no CI/UFPB. Sistema desenvolvido para a disciplina de métodos de projeto de software.
@@ -10,9 +19,11 @@ Marketplace interno para vendas no CI/UFPB. Sistema desenvolvido para a discipli
 src/
 ├── main.py          # Aplicação FastAPI
 ├── requirements.txt # Dependências
-├── models/          # Classes de domínio
+├── models/          # Classes de domínio (entidade)
 ├── schema/          # Validação de dados
-└── routes/          # Endpoints da API
+├── controllers/     # Controladores (controle)
+├── repositories/    # Repositórios 
+└── routes/          # Endpoints da API (fronteira)
 ```
 
 ## Como Utilizar
