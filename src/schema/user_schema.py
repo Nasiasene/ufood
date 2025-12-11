@@ -1,45 +1,39 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from enum import Enum
 
-
-class TipoUsuarioSchema(str, Enum):
-    VENDEDOR = "vendedor"
-    CLIENTE = "cliente"
+from repositories.user_type import UserType
 
 
 class UserCreateSchema(BaseModel):
-    nome: str = Field(..., min_length=1, max_length=100, description= "Nome do usuário")
+    name: str = Field(..., min_length=1, max_length=100, description= "Nome do usuário")
     email: str = Field(..., description= "Email do usuário")
-    tipo: TipoUsuarioSchema = Field(..., description= "Tipo do usuário: vendedor ou cliente")
-    telefone: Optional[str] = Field(None, max_length=20, description= "Telefone do usuário")
+    user_type: UserType = Field(..., description= "Tipo do usuário: user ou admin")
+    phone: Optional[str] = Field(None, max_length=20, description= "Telefone do usuário")
 
     class Config:
-        json_schema_extra = { # exemplo p docs
+        json_schema_extra = {
             "example": {
-                "nome": "Davi Nasiasene",
+                "name": "Davi Nasiasene",
                 "email": "davi.nasiasene@gmail.com",
-                "tipo": "cliente",
-                "telefone": "(83) 99999-9999"
+                "user_type": "user",
+                "phone": "(83) 99999-9999"
             }
         }
 
 
 class UserResponseSchema(BaseModel):
     id: int
-    nome: str
+    name: str
     email: str
-    tipo: str
-    telefone: Optional[str] = None
+    user_type: str
+    phone: Optional[str] = None
 
     class Config:
-        json_schema_extra = { # exemplo p docs
+        json_schema_extra = {
             "example": {
-                "id": 1,
-                "nome": "Davi Nasiasene",
+                "name": "Davi Nasiasene",
                 "email": "davi.nasiasene@gmail.com",
-                "tipo": "cliente",
-                "telefone": "(83) 99999-9999"
+                "user_type": "user",
+                "phone": "(83) 99999-9999"
             }
         }
-
