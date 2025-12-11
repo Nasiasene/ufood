@@ -54,3 +54,14 @@ curl "http://localhost:8000/usuarios/"
 ```bash
 curl "http://localhost:8000/usuarios/1"
 ```
+
+
+## Diagramas
+
+### Diagrama de casos de uso
+
+![Diagrama de casos de uso](docs/diagrama-casos-de-uso.png)
+
+### Diagrama de classes
+
+![Diagrama de classes](docs/diagrama-de-classes.jpeg)
