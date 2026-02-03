@@ -15,7 +15,9 @@ class UserControl:
             name=user_data.name,
             email=user_data.email,
             user_type=user_data.user_type,
-            phone=user_data.phone
+            login=user_data.login,
+            phone=user_data.phone,
+            password=user_data.password
         )
         
         return self._repository.add(new_user)

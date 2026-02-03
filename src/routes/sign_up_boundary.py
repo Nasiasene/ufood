@@ -20,6 +20,8 @@ class SignUpBoundary:
         
     def add_user(self, user_data: UserCreateSchema):    
         try:
+            user_data.validate_login()
+            user_data.validate_password()
             new_user = self._user_control.sign_up(user_data)
         except ValueError as e:
             raise HTTPException(
