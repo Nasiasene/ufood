@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from schema.user_schema import UserCreateSchema, UserResponseSchema
 from controllers.user_control import UserControl
+from schema.exceptions import ValidationException
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
@@ -22,10 +23,12 @@ class SignUpBoundary:
         try:
             
             new_user = self._user_control.sign_up(user_data)
-        except ValueError as e:
+        except ValidationException as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
+        except Exception:
+            return {"erro": "Erro interno no servidor"}, 500
         
         return new_user.to_dict()
