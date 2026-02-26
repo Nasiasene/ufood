@@ -1,7 +1,8 @@
 import re
 from typing import List
 
-from repositories.user_repository import UserRepository, User
+from models.user import User
+from repositories.user_repository import UserRepository
 from schema.user_schema import UserCreateSchema
 from schema.exceptions import ValidationException
 from repositories.user_type import UserType

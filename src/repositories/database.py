@@ -43,6 +43,3 @@ def init_db() -> None:
             )
         ''')
 
-
-# Initialize on import
-init_db()

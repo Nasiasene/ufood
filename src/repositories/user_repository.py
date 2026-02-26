@@ -1,16 +1,46 @@
 import sqlite3
+from abc import ABC, abstractmethod
 from typing import List
 
 from models.user import User
-from repositories.database import get_db_connection
 from repositories.user_type import UserType
 
 
-class UserRepository:
-    """Repository for managing User persistence in the database."""
+class UserRepository(ABC):
+    """Abstract interface for User persistence."""
+
+    @abstractmethod
+    def add(self, user: User) -> User:
+        ...
+
+    @abstractmethod
+    def list_users(self) -> List[User]:
+        ...
+
+
+class InMemoryUserRepository(UserRepository):
+    """Stores users in RAM. Data is lost when the application stops."""
+
+    def __init__(self):
+        self._users: List[User] = []
+        self._next_id = 0
 
     def add(self, user: User) -> User:
-        """Add a new user to the database and return it with the assigned ID."""
+        self._next_id += 1
+        user.id = self._next_id
+        self._users.append(user)
+        return user
+
+    def list_users(self) -> List[User]:
+        return list(self._users)
+
+
+class SqliteUserRepository(UserRepository):
+    """Stores users in a local SQLite database. Data persists across restarts."""
+
+    def add(self, user: User) -> User:
+        from repositories.database import get_db_connection
+
         try:
             with get_db_connection() as conn:
                 cursor = conn.execute(
@@ -28,7 +58,8 @@ class UserRepository:
             raise IOError(f"Database error while adding user: {e}")
 
     def list_users(self) -> List[User]:
-        """Retrieve all users from the database."""
+        from repositories.database import get_db_connection
+
         try:
             with get_db_connection() as conn:
                 rows = conn.execute('SELECT * FROM users').fetchall()
@@ -37,7 +68,6 @@ class UserRepository:
             raise IOError(f"Database error while listing users: {e}")
 
     def _row_to_user(self, row: sqlite3.Row) -> User:
-        """Convert a database row to a User object."""
         user = User(
             name=row['name'],
             email=row['email'],

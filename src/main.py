@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from repositories.user_repository import UserRepository
+from repositories.user_repository import InMemoryUserRepository, SqliteUserRepository
 from controllers.user_control import UserControl
 
 from routes.sign_up_boundary import SignUpBoundary
@@ -10,7 +10,15 @@ from routes.sign_up_boundary import router as sign_up_router
 from routes.admin_menu import AdminMenuBoundary
 from routes.admin_menu import router as admin_router
 
-user_repository = UserRepository()
+# "memory" = in-RAM (lost on restart) | "sqlite" = persisted to local database
+STORAGE_MODE = "sqlite"
+
+if STORAGE_MODE == "sqlite":
+    from repositories.database import init_db
+    init_db()
+    user_repository = SqliteUserRepository()
+else:
+    user_repository = InMemoryUserRepository()
 
 user_control = UserControl(user_repository)
 
