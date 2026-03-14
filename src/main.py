@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 from repositories.user_repository import InMemoryUserRepository, SqliteUserRepository
-from controllers.user_control import UserControl
+from controllers.facade_singleton_controller import FacadeSingletonController
 
 from routes.sign_up_boundary import SignUpBoundary
 from routes.sign_up_boundary import router as sign_up_router
@@ -20,7 +20,11 @@ if STORAGE_MODE == "sqlite":
 else:
     user_repository = InMemoryUserRepository()
 
-user_control = UserControl(user_repository)
+# Inicializa o Facade com o repositório escolhido
+facade = FacadeSingletonController(user_repository)
+
+# Acessa o UserControl através do Facade, usando sempre a mesma instância do controller
+user_control = facade.user_control 
 
 sign_up = SignUpBoundary(user_control)
 admin = AdminMenuBoundary(user_control)
