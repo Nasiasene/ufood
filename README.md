@@ -47,10 +47,12 @@ Documentação: `http://localhost:8000/docs`
 curl -X POST "http://localhost:8000/usuarios/" \
   -H "Content-Type: application/json" \
   -d '{
-    "nome": "João Silva",
+    "name": "João Silva",
     "email": "joao@email.com",
-    "tipo": "cliente",
-    "telefone": "11999999999"
+    "user_type": "user",
+    "login": "joao_silva",
+    "phone": "11999999999",
+    "password": "SenhaForte123!"
   }'
 ```
 
