@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from repositories.user_repository import InMemoryUserRepository, SqliteUserRepository
+from repositories.repository_factory import get_repository_factory
 from controllers.facade_singleton_controller import FacadeSingletonController
 
 from routes.sign_up_boundary import SignUpBoundary
@@ -13,12 +13,16 @@ from routes.admin_menu import router as admin_router
 # "memory" = in-RAM (lost on restart) | "sqlite" = persisted to local database
 STORAGE_MODE = "sqlite"
 
+# Obtém a factory apropriada
+repository_factory = get_repository_factory(STORAGE_MODE)
+
+# Inicializa banco de dados se usando SQLite
 if STORAGE_MODE == "sqlite":
     from repositories.database import init_db
     init_db()
-    user_repository = SqliteUserRepository()
-else:
-    user_repository = InMemoryUserRepository()
+
+# Cria os repositórios através da factory
+user_repository = repository_factory.create_user_repository()
 
 # Inicializa o Facade com o repositório escolhido
 facade = FacadeSingletonController(user_repository)
