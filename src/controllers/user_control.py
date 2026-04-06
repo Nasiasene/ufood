@@ -1,15 +1,24 @@
 import re
 from typing import List
 
+from commands.command_bus import CommandBus
+from commands.user_commands import SignUpUserCommand, ListUsersCommand
 from models.user import User
 from repositories.user_repository import UserRepository
 from schema.user_schema import UserCreateSchema
 from schema.exceptions import ValidationException
 from repositories.user_type import UserType
+from controllers.templates.sign_up_operation_template import SignUpOperationTemplate
 
 class UserControl:
     def __init__(self, repository: UserRepository):
         self._repository = repository
+        self._command_bus = CommandBus()
+        self._sign_up_operation = SignUpOperationTemplate(
+            repository=self._repository,
+            validate_login=self.validate_login,
+            validate_password=self.validate_password,
+        )
 
     def validate_login(self, login: str):
         if len(login) > 12 or len(login) < 1:
@@ -39,25 +48,18 @@ class UserControl:
             raise ValidationException("A senha não pode ser idêntica ao nome, ao endereço de e-mail ou ao login.")
 
     def sign_up(self, user_data: UserCreateSchema):
-        user_type = UserType.USER if user_data.user_type.value == "user" else UserType.ADMIN
         try:
-            user_data.login = self.validate_login(user_data.login)
-            self.validate_password(user_data.password, user_data.name, user_data.email, user_data.login)
-            new_user = User(
-                name=user_data.name,
-                email=user_data.email,
-                user_type=user_type,
-                login=user_data.login,
-                phone=user_data.phone,
-                password=user_data.password
-            )
-
-            return self._repository.add(new_user)
+            command = SignUpUserCommand(self._sign_up_operation.execute, user_data)
+            return self._command_bus.dispatch(command)
         except ValueError as e:
             raise ValueError(str(e))
         except ValidationException as e:
             raise e
 
     def list_users(self) -> List[User]:
-        return self._repository.list_users()
+        command = ListUsersCommand(self._repository.list_users)
+        return self._command_bus.dispatch(command)
+
+    def command_history(self):
+        return self._command_bus.get_history()
 

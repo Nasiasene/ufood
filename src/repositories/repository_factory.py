@@ -42,6 +42,18 @@ class SqliteRepositoryFactory(RepositoryFactory):
         return SqliteUserRepository()
 
 
+class LegacyRepositoryFactory(RepositoryFactory):
+    """Factory que cria repositórios adaptados para um sistema legado.
+
+    Os dados são persistidos em arquivo para simular integração com legado.
+    """
+
+    def create_user_repository(self) -> UserRepository:
+        from repositories.legacy_user_storage import LegacyUserStorage
+        from repositories.user_repository_adapter import UserRepositoryAdapter
+        return UserRepositoryAdapter(LegacyUserStorage())
+
+
 def get_repository_factory(storage_mode: str) -> RepositoryFactory:
     """Factory helper que seleciona o tipo correto de factory.
     
@@ -58,5 +70,7 @@ def get_repository_factory(storage_mode: str) -> RepositoryFactory:
         return SqliteRepositoryFactory()
     elif storage_mode == "memory":
         return InMemoryRepositoryFactory()
+    elif storage_mode == "legacy":
+        return LegacyRepositoryFactory()
     else:
-        raise ValueError(f"Storage mode inválido: {storage_mode}. Use 'sqlite' ou 'memory'.")
+        raise ValueError(f"Storage mode inválido: {storage_mode}. Use 'sqlite', 'memory' ou 'legacy'.")
