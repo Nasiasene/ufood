@@ -2,12 +2,14 @@
   "next_id": 2,
   "users": {
     "1": {
-      "name": "João",
-      "email": "joao@example.com",
+      "name": "Legado User",
+      "email": "legado@ufpb.br",
       "user_type": "user",
-      "login": "joao",
-      "phone": "999",
-      "password": "Senha123!",
+      "login": "legado",
+      "phone": "83000000000",
+      "password": "Legado#123!",
+      "status": "active",
+      "deletion_scheduled_at": null,
       "id": 1
     }
   }

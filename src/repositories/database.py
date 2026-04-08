@@ -53,3 +53,13 @@ def init_db() -> None:
             except Exception:
                 pass
 
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS stores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                owner_id INTEGER NOT NULL,
+                is_open INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (owner_id) REFERENCES users(id)
+            )
+        ''')
+
