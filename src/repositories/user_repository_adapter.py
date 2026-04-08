@@ -1,40 +1,23 @@
+from datetime import datetime
 from typing import List
+
 from models.user import User
-from repositories.user_repository import UserRepository
+from models.user_status import UserStatus
 from repositories.legacy_user_storage import LegacyUserStorage
+from repositories.user_repository import UserRepository
 from repositories.user_type import UserType
+
 
 class UserRepositoryAdapter(UserRepository):
     """
     Adapter que permite usar o sistema legado (LegacyUserStorage)
     como se fosse um UserRepository moderno.
-
-    O Adapter converte as chamadas do UserRepository para o formato esperado pelo LegacyUserStorage,
-    e também converte os dados de volta para o formato do User quando necessário.
-
-    Para testar este adapter, basta criar uma instância de LegacyUserStorage e passar para o UserRepositoryAdapter.
-    Exemplo:
-    legacy_storage = LegacyUserStorage()
-    user_repo = UserRepositoryAdapter(legacy_storage)
-    facade = FacadeSingletonControl(user_repo)
-    control = facade.user_control
-
-    # Cria um usuário
-    payload = UserCreateSchema(
-        name='Ana',
-        email='ana@example.com',
-        user_type='user',
-        login='ana',
-        phone='123',
-        password='SenhaForte123!'
-    )
-    created = control.sign_up(payload)
     """
+
     def __init__(self, legacy_storage: LegacyUserStorage):
         self.legacy = legacy_storage
 
     def add(self, user: User) -> User:
-        # Converte User para dict no formato esperado pelo legado
         legacy_dict = {
             'name': user.name,
             'email': user.email,
@@ -42,23 +25,15 @@ class UserRepositoryAdapter(UserRepository):
             'login': user.login,
             'phone': user.phone,
             'password': user.password,
+            'status': user.status.value,
+            'deletion_scheduled_at': user.deletion_scheduled_at.isoformat() if user.deletion_scheduled_at else None,
         }
         saved = self.legacy.save_user_legacy(legacy_dict)
         user.id = saved['id']
         return user
 
     def get_by_id(self, user_id: int) -> User:
-        legacy_dict = self.legacy.get_user_legacy(user_id)
-        user = User(
-            name=legacy_dict['name'],
-            email=legacy_dict['email'],
-            user_type=UserType(legacy_dict['user_type']),
-            login=legacy_dict['login'],
-            phone=legacy_dict.get('phone'),
-            password=legacy_dict['password'],
-        )
-        user.id = legacy_dict['id']
-        return user
+        return self._dict_to_user(self.legacy.get_user_legacy(user_id))
 
     def update(self, user: User) -> User:
         legacy_dict = {
@@ -68,21 +43,26 @@ class UserRepositoryAdapter(UserRepository):
             'login': user.login,
             'phone': user.phone,
             'password': user.password,
+            'status': user.status.value,
+            'deletion_scheduled_at': user.deletion_scheduled_at.isoformat() if user.deletion_scheduled_at else None,
         }
         self.legacy.update_user_legacy(user.id, legacy_dict)
         return user
 
     def list_users(self) -> List[User]:
-        users = []
-        for legacy_dict in self.legacy.get_all_users_legacy():
-            user = User(
-                name=legacy_dict['name'],
-                email=legacy_dict['email'],
-                user_type=UserType(legacy_dict['user_type']),
-                login=legacy_dict['login'],
-                phone=legacy_dict.get('phone'),
-                password=legacy_dict['password'],
-            )
-            user.id = legacy_dict['id']
-            users.append(user)
-        return users
+        return [self._dict_to_user(d) for d in self.legacy.get_all_users_legacy()]
+
+    def _dict_to_user(self, d: dict) -> User:
+        deletion_at = datetime.fromisoformat(d['deletion_scheduled_at']) if d.get('deletion_scheduled_at') else None
+        user = User(
+            name=d['name'],
+            email=d['email'],
+            user_type=UserType(d['user_type']),
+            login=d['login'],
+            phone=d.get('phone'),
+            password=d['password'],
+            status=UserStatus(d.get('status', 'active')),
+            deletion_scheduled_at=deletion_at,
+        )
+        user.id = d['id']
+        return user

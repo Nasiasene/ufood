@@ -42,6 +42,8 @@ class UserResponseSchema(BaseModel):
     user_type: str
     phone: Optional[str] = None
     password: str
+    status: str = "active"
+    deletion_scheduled_at: Optional[str] = None
 
     class Config:
         json_schema_extra = {

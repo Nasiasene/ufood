@@ -1,11 +1,14 @@
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from commands.command_bus import CommandBus
 from commands.user_commands import EditUserCommand, ListUsersCommand, SignUpUserCommand
 from controllers.templates.sign_up_operation_template import SignUpOperationTemplate
+from filters.user_filter_strategy import UserFilterStrategy
 from models.user import User
 from models.user_history import UserHistory
+from observers.user_deletion_observer import UserDeletionObserver
+from observers.user_deletion_publisher import UserDeletionPublisher
 from repositories.user_repository import UserRepository
 from schema.exceptions import ValidationException
 from schema.user_schema import UserCreateSchema, UserUpdateSchema
@@ -24,6 +27,7 @@ class FacadeSingletonController:
         self._repository = user_repository
         self._command_bus = CommandBus()
         self._user_history = UserHistory()
+        self._deletion_publisher = UserDeletionPublisher()
         self._sign_up_operation = SignUpOperationTemplate(
             repository=user_repository,
             validate_login=self._validate_login,
@@ -60,9 +64,10 @@ class FacadeSingletonController:
         command = SignUpUserCommand(self._sign_up_operation.execute, user_data)
         return self._command_bus.dispatch(command)
 
-    def list_users(self) -> List[User]:
+    def list_users(self, filter: Optional[UserFilterStrategy] = None) -> List[User]:
         command = ListUsersCommand(self._repository.list_users)
-        return self._command_bus.dispatch(command)
+        users = self._command_bus.dispatch(command)
+        return filter.apply(users) if filter else users
 
     def edit_user(self, user_id: int, user_data: UserUpdateSchema) -> User:
         user = self._repository.get_by_id(user_id)
@@ -89,6 +94,14 @@ class FacadeSingletonController:
         if user_data.phone is not None:
             user.phone = user_data.phone
         return self._repository.update(user)
+
+    def delete_user(self, user_id: int) -> User:
+        user = self._repository.get_by_id(user_id)
+        self._deletion_publisher.notify(user)
+        return self._repository.update(user)
+
+    def subscribe_deletion_observer(self, observer: UserDeletionObserver) -> None:
+        self._deletion_publisher.subscribe(observer)
 
     def command_history(self) -> List[Dict[str, Any]]:
         return self._command_bus.get_history()

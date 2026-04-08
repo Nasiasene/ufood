@@ -29,7 +29,7 @@ def get_db_connection() -> Generator[sqlite3.Connection, None, None]:
 
 
 def init_db() -> None:
-    """Initialize database tables."""
+    """Initialize database tables and apply migrations for new columns."""
     with get_db_connection() as conn:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -39,7 +39,17 @@ def init_db() -> None:
                 user_type TEXT NOT NULL,
                 phone TEXT,
                 login TEXT,
-                password TEXT
+                password TEXT,
+                status TEXT NOT NULL DEFAULT 'active',
+                deletion_scheduled_at TEXT
             )
         ''')
+        for column, definition in [
+            ("status", "TEXT NOT NULL DEFAULT 'active'"),
+            ("deletion_scheduled_at", "TEXT"),
+        ]:
+            try:
+                conn.execute(f"ALTER TABLE users ADD COLUMN {column} {definition}")
+            except Exception:
+                pass
 
