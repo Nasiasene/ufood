@@ -44,5 +44,19 @@ class LegacyUserStorage:
         self._save()
         return legacy_user
 
+    def get_user_legacy(self, user_id: int) -> Dict[str, Any]:
+        key = str(user_id)
+        if key not in self._legacy_users:
+            raise ValueError(f"Usuário {user_id} não encontrado no sistema legado.")
+        return self._legacy_users[key]
+
+    def update_user_legacy(self, user_id: int, user_dict: Dict[str, Any]) -> Dict[str, Any]:
+        key = str(user_id)
+        if key not in self._legacy_users:
+            raise ValueError(f"Usuário {user_id} não encontrado no sistema legado.")
+        self._legacy_users[key].update(user_dict)
+        self._save()
+        return self._legacy_users[key]
+
     def get_all_users_legacy(self) -> List[Dict[str, Any]]:
         return list(self._legacy_users.values())

@@ -2,7 +2,7 @@ from typing import Callable, List
 
 from commands.base_command import Command
 from models.user import User
-from schema.user_schema import UserCreateSchema
+from schema.user_schema import UserCreateSchema, UserUpdateSchema
 
 
 class SignUpUserCommand(Command):
@@ -20,3 +20,13 @@ class ListUsersCommand(Command):
 
     def execute(self) -> List[User]:
         return self._list_action()
+
+
+class EditUserCommand(Command):
+    def __init__(self, edit_action: Callable[[int, UserUpdateSchema], User], user_id: int, user_data: UserUpdateSchema):
+        self._edit_action = edit_action
+        self._user_id = user_id
+        self._user_data = user_data
+
+    def execute(self) -> User:
+        return self._edit_action(self._user_id, self._user_data)

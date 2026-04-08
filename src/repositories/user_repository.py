@@ -17,6 +17,14 @@ class UserRepository(ABC):
     def list_users(self) -> List[User]:
         ...
 
+    @abstractmethod
+    def get_by_id(self, user_id: int) -> User:
+        ...
+
+    @abstractmethod
+    def update(self, user: User) -> User:
+        ...
+
 
 class InMemoryUserRepository(UserRepository):
     """Stores users in RAM. Data is lost when the application stops."""
@@ -33,6 +41,19 @@ class InMemoryUserRepository(UserRepository):
 
     def list_users(self) -> List[User]:
         return list(self._users)
+
+    def get_by_id(self, user_id: int) -> User:
+        for user in self._users:
+            if user.id == user_id:
+                return user
+        raise ValueError(f"Usuário {user_id} não encontrado.")
+
+    def update(self, user: User) -> User:
+        for i, u in enumerate(self._users):
+            if u.id == user.id:
+                self._users[i] = user
+                return user
+        raise ValueError(f"Usuário {user.id} não encontrado.")
 
 
 class SqliteUserRepository(UserRepository):
@@ -66,6 +87,31 @@ class SqliteUserRepository(UserRepository):
                 return [self._row_to_user(row) for row in rows]
         except sqlite3.Error as e:
             raise IOError(f"Database error while listing users: {e}")
+
+    def get_by_id(self, user_id: int) -> User:
+        from repositories.database import get_db_connection
+
+        try:
+            with get_db_connection() as conn:
+                row = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+                if row is None:
+                    raise ValueError(f"Usuário {user_id} não encontrado.")
+                return self._row_to_user(row)
+        except sqlite3.Error as e:
+            raise IOError(f"Database error while fetching user: {e}")
+
+    def update(self, user: User) -> User:
+        from repositories.database import get_db_connection
+
+        try:
+            with get_db_connection() as conn:
+                conn.execute(
+                    'UPDATE users SET name=?, email=?, user_type=?, phone=?, login=?, password=? WHERE id=?',
+                    (user.name, user.email, user.user_type.value, user.phone, user.login, user.password, user.id)
+                )
+                return user
+        except sqlite3.Error as e:
+            raise IOError(f"Database error while updating user: {e}")
 
     def _row_to_user(self, row: sqlite3.Row) -> User:
         user = User(

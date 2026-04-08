@@ -27,6 +27,13 @@ class UserCreateSchema(BaseModel):
         }
 
 
+class UserUpdateSchema(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    email: Optional[str] = None
+    login: Optional[str] = None
+    phone: Optional[str] = Field(None, max_length=20)
+
+
 class UserResponseSchema(BaseModel):
     id: int
     name: str

@@ -4,11 +4,12 @@ from fastapi.responses import RedirectResponse
 from repositories.repository_factory import get_repository_factory
 from controllers.facade_singleton_controller import FacadeSingletonController
 
-from routes.sign_up_boundary import SignUpBoundary
-from routes.sign_up_boundary import router as sign_up_router
-
 from routes.admin_menu import AdminMenuBoundary
 from routes.admin_menu import router as admin_router
+from routes.edit_user_boundary import EditUserBoundary
+from routes.edit_user_boundary import router as edit_user_router
+from routes.sign_up_boundary import SignUpBoundary
+from routes.sign_up_boundary import router as sign_up_router
 
 # "memory" = in-RAM (lost on restart) | "sqlite" = persisted to local database
 STORAGE_MODE = "sqlite"
@@ -27,15 +28,14 @@ user_repository = repository_factory.create_user_repository()
 # Inicializa o Facade com o repositório escolhido
 facade = FacadeSingletonController(user_repository)
 
-# Acessa o UserControl através do Facade, usando sempre a mesma instância do controller
-user_control = facade.user_control 
-
-sign_up = SignUpBoundary(user_control)
-admin = AdminMenuBoundary(user_control)
+sign_up = SignUpBoundary(facade)
+admin = AdminMenuBoundary(facade)
+edit_user = EditUserBoundary(facade)
 
 app = FastAPI()
 
 app.include_router(sign_up_router)
+app.include_router(edit_user_router)
 app.include_router(admin_router)
 
 

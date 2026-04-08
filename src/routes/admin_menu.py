@@ -1,14 +1,15 @@
-from fastapi import APIRouter
 from typing import List
 
-from controllers.user_control import UserControl
-from schema.user_schema import UserResponseSchema
+from fastapi import APIRouter
 
+from controllers.facade_singleton_controller import FacadeSingletonController
+from schema.user_schema import UserResponseSchema
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
+
 class AdminMenuBoundary:
-    def __init__(self, user_control: UserControl):
+    def __init__(self, user_control: FacadeSingletonController):
         self._user_control = user_control
         
         router.add_api_route(

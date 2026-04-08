@@ -47,6 +47,31 @@ class UserRepositoryAdapter(UserRepository):
         user.id = saved['id']
         return user
 
+    def get_by_id(self, user_id: int) -> User:
+        legacy_dict = self.legacy.get_user_legacy(user_id)
+        user = User(
+            name=legacy_dict['name'],
+            email=legacy_dict['email'],
+            user_type=UserType(legacy_dict['user_type']),
+            login=legacy_dict['login'],
+            phone=legacy_dict.get('phone'),
+            password=legacy_dict['password'],
+        )
+        user.id = legacy_dict['id']
+        return user
+
+    def update(self, user: User) -> User:
+        legacy_dict = {
+            'name': user.name,
+            'email': user.email,
+            'user_type': user.user_type.value,
+            'login': user.login,
+            'phone': user.phone,
+            'password': user.password,
+        }
+        self.legacy.update_user_legacy(user.id, legacy_dict)
+        return user
+
     def list_users(self) -> List[User]:
         users = []
         for legacy_dict in self.legacy.get_all_users_legacy():

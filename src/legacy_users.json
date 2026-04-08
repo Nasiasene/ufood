@@ -1,5 +1,5 @@
 {
-  "next_id": 3,
+  "next_id": 2,
   "users": {
     "1": {
       "name": "João",
@@ -9,15 +9,6 @@
       "phone": "999",
       "password": "Senha123!",
       "id": 1
-    },
-    "2": {
-      "name": "Teste legacy",
-      "email": "teste_legacy_testeleg@example.com",
-      "user_type": "user",
-      "login": "testeleg",
-      "phone": "999",
-      "password": "SenhaForte123!",
-      "id": 2
     }
   }
 }

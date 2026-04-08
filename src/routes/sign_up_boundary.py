@@ -1,13 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
 
-from schema.user_schema import UserCreateSchema, UserResponseSchema
-from controllers.user_control import UserControl
+from controllers.facade_singleton_controller import FacadeSingletonController
 from schema.exceptions import ValidationException
+from schema.user_schema import UserCreateSchema, UserResponseSchema
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
+
 class SignUpBoundary:
-    def __init__(self, user_control: UserControl):
+    def __init__(self, user_control: FacadeSingletonController):
         self._user_control = user_control
         
         router.add_api_route(
